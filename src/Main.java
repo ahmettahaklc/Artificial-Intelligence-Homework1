@@ -3,11 +3,14 @@ import java.util.stream.Collectors;
 
 public class Main {
 
+    public static int numberOfStep=0;
     public static LinkedList<int[][]> queue = new LinkedList<>();
     public static final int[][] goal_state = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};
     private static Set<List<List<Integer>>> seenStates = new HashSet<>();
 
     public static void BFS(int[][] a) {
+
+        // Locate the blank space (0) in the current state
         int column = 0;
         int line = 0;
         for (int i = 0; i < 3; i++) {
@@ -19,6 +22,7 @@ public class Main {
             }
         }
 
+        // Move the blank up if possible, check uniqueness
         if (line > 0) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -28,11 +32,14 @@ public class Main {
             }
             fringe[line][column] = fringe[line - 1][column];
             fringe[line - 1][column] = 0;
+
+            // Check if this state is unique; if so, add it to the queue.
             if (isUnique(fringe)) {
                 queue.add(fringe);
             }
         }
 
+        // Move the blank down if possible, check uniqueness
         if (line < 2) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -47,6 +54,7 @@ public class Main {
             }
         }
 
+        // Move the blank left if possible, check uniqueness
         if (column > 0) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -61,6 +69,7 @@ public class Main {
             }
         }
 
+        // Move the blank right if possible, check uniqueness
         if (column < 2) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -88,6 +97,7 @@ public class Main {
             }
         }
 
+        // Move the blank up if possible, check uniqueness
         if (line > 0) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -102,6 +112,7 @@ public class Main {
             }
         }
 
+        // Move the blank down if possible, check uniqueness
         if (line < 2) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -116,6 +127,7 @@ public class Main {
             }
         }
 
+        // Move the blank left if possible, check uniqueness
         if (column > 0) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -130,6 +142,7 @@ public class Main {
             }
         }
 
+        // Move the blank right if possible, check uniqueness
         if (column < 2) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -147,6 +160,7 @@ public class Main {
 
     public static void DFSLimited(int[][] a, int limit) {
 
+        // Locate the blank space (0) in the current state
         int column = 0;
         int line = 0;
         for (int i = 0; i < 3; i++) {
@@ -158,10 +172,12 @@ public class Main {
             }
         }
 
+        // Return if depth limit is reached
         if (--limit == 0) {
             return;
         }
 
+        // Move the blank up if possible, check uniqueness, and recursively continue DFS
         if (line > 0) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -177,6 +193,7 @@ public class Main {
             }
         }
 
+        // Move the blank down if possible, check uniqueness, and continue DFS
         if (line < 2) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -192,6 +209,7 @@ public class Main {
             }
         }
 
+        // Move the blank left if possible, check uniqueness, and continue DFS
         if (column > 0) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -207,6 +225,7 @@ public class Main {
             }
         }
 
+        // Move the blank right if possible, check uniqueness, and continue DFS
         if (column < 2) {
             int[][] fringe = new int[3][3];
             for (int i = 0; i < 3; i++) {
@@ -223,7 +242,36 @@ public class Main {
         }
     }
 
+    // Iterative Deepening Search with increasing depth limit
+    public static void IterativeDeepeningSearch(int limit, int[][] initialState) {
+        int increaseLimit = limit;
+        while (true) {
+            queue.add(initialState);
+            while (!queue.isEmpty()) {
+                int[][] currentState = queue.removeFirst();
 
+                if (CheckingState(currentState)) {
+                    System.out.println("Goal State is founded");
+                    System.out.println("Maximum size of fringe: "+queue.size());
+                    System.out.println("Number of nodes expanded for solved problems:" + --numberOfStep);
+                    return;
+                }
+
+                DFSLimited(currentState, limit);
+                numberOfStep++;
+            }
+            limit += increaseLimit;
+            if (limit == 500) { // Exit condition if limit reaches 500
+                System.out.println("Iterative Deepening Search could not found goal state");
+                System.out.println("Maximum size of fringe: "+numberOfStep);
+                System.out.println("Number of nodes expanded for solved problems:" + --numberOfStep);
+                return;
+            }
+        }
+
+    }
+
+    // Check if a given state is unique in seen states
     public static boolean isUnique(int[][] state) {
         // Convert the 2D array to a list of lists for easy hashing and equality checking
         List<List<Integer>> stateAsList = Arrays.stream(state)
@@ -239,7 +287,7 @@ public class Main {
         return false;
     }
 
-
+    // Check if the current state matches the goal state
     public static boolean CheckingState(int[][] currentState) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -252,117 +300,126 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        int size = 0;
+        LinkedList<int[][]> initialStates = new LinkedList<>();
+        boolean found = false;
 
-        int[][] initial_state = new int[3][3];
-        List<Integer> numbers = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            int index = 0;
+            int[][] initial_state = new int[3][3];
+            List<Integer> numbers = new ArrayList<>();
 
-        for (int i = 0; i < 9; i++) {
-            numbers.add(i);
-        }
-
-        Collections.shuffle(numbers);
-        int index = 0;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                initial_state[i][j]=numbers.get(index);
-                index++;
+            for (int j = 0; j < 9; j++) {
+                numbers.add(j);
             }
-        }
+            Collections.shuffle(numbers);
 
-        //Print initial state
-        System.out.println("Initial State:");
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                System.out.print(initial_state[i][j]);
+            // Fill initial state matrix with shuffled numbers
+            for (int k = 0; k < 3; k++) {
+                for (int j = 0; j < 3; j++) {
+                    initial_state[k][j] = numbers.get(index);
+                    index++;
+                }
             }
-            System.out.println();
+            initialStates.add(initial_state);
         }
-        
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.println("""
-                Please choose search algorithm for find out the goal state
-                
-                1-BFS
-                2-DFS
-                3-DFS(Limited)""");
+        System.out.println("Initial States are created");
 
-        String choose = scanner.nextLine();
-
-        if (choose.equals("1")) {
-            System.out.println("Breadth First Search algorithm is selected");
-            queue.add(initial_state);
+        // Run all search algorithms for each initial state
+        for (int i = 0; i < 10; i++) {
+            System.out.println("Breadth First Search algorithm is started");
+            queue.add(initialStates.get(i));
             while (!queue.isEmpty()) {
                 int[][] currentState = queue.removeFirst();
-
-                //Print current state
-                /*for (int i = 0; i < 3; i++) {
-                    for (int j = 0; j < 3; j++) {
-                        System.out.print(currentState[i][j]);
-                    }
-                    System.out.println();
-                }
-                System.out.println("---");
-                */
-
+                numberOfStep++;
                 if (CheckingState(currentState)) {
-                    System.out.println("Goal State is founded");
+                    System.out.println("Goal State is found");
+                    size = queue.size();
+                    found = true;
                     break;
                 }
-
                 BFS(currentState);
             }
-        } else if (choose.equals("2")) {
-            System.out.println("Depth First Search algorithm is selected");
-            queue.add(initial_state);
+            if (!found) {
+                System.out.println("Breadth First Search could not found goal state");
+                size = numberOfStep;
+            }
+            System.out.println("Maximum size of fringe: "+ size);
+            System.out.println("Number of nodes expanded for solved problems:" + --numberOfStep);
+
+            numberOfStep=0;
+            queue.clear();
+            seenStates.clear();
+            found=false;
+            System.out.println();
+
+            System.out.println("Depth First Search algorithm is started");
+            queue.add(initialStates.get(i));
             while (!queue.isEmpty()) {
+                numberOfStep++;
                 int[][] currentState = queue.removeFirst();
-
-                //Print current state
-                for (int i = 0; i < 3; i++) {
-                    for (int j = 0; j < 3; j++) {
-                        System.out.print(currentState[i][j]);
-                    }
-                    System.out.println();
-                }
-                System.out.println("---");
-
-
                 if (CheckingState(currentState)) {
+                    size = queue.size();
                     System.out.println("Goal State is founded");
+                    found = true;
                     break;
                 }
-
                 DFS(currentState);
-
             }
-        } else if (choose.equals("3")) {
-            System.out.println("DFS(Limited) search algorithm is selected");
-            queue.add(initial_state);
+            if (!found) {
+                System.out.println("Depth First Search could not found goal state");
+                size = numberOfStep;
+            }
+            System.out.println("Maximum size of fringe: "+size);
+            System.out.println("Number of nodes expanded for solved problems:" + --numberOfStep);
+
+            numberOfStep=0;
+            queue.clear();
+            seenStates.clear();
+            found=false;
+            System.out.println();
+
+            System.out.println("DFS(Limited) search algorithm is started");
+            queue.add(initialStates.get(i));
+            int[][] currentState = queue.removeFirst();
+            DFSLimited(currentState, 10);
             while (!queue.isEmpty()) {
-                int[][] currentState = queue.removeFirst();
-
-                //Print current state
-                for (int i = 0; i < 3; i++) {
-                    for (int j = 0; j < 3; j++) {
-                        System.out.print(currentState[i][j]);
-                    }
-                    System.out.println();
-                }
-                System.out.println("---");
-
+                numberOfStep++;
+                currentState = queue.removeFirst();
                 if (CheckingState(currentState)) {
-                    System.out.println("Goal State is founded");
+                    size = queue.size();
+                    System.out.println("Goal State is found");
+                    found = true;
                     break;
-                } else {
-                    System.out.println("Goal state is not founded");
                 }
-
-                DFSLimited(currentState, 3);
             }
-        } else {
-            System.out.println("Error: Input is not correct");
-        }
+            if (!found) {
+                System.out.println("Depth First Search(Limited) could not found goal state");
+                size = numberOfStep;
+            }
+            System.out.println("Maximum size of fringe: "+size);
+            System.out.println("Number of nodes expanded for solved problems:" + --numberOfStep);
 
+            numberOfStep=0;
+            queue.clear();
+            seenStates.clear();
+            found=false;
+            System.out.println();
+
+            System.out.println("Iterative Deepening Search algorithm is started");
+            IterativeDeepeningSearch(10, initialStates.get(i));
+
+            numberOfStep=0;
+            queue.clear();
+            seenStates.clear();
+            found=false;
+            System.out.println();
+
+            System.out.println("------------------------------------------");
+            System.out.println();
+
+
+        }
     }
 }
