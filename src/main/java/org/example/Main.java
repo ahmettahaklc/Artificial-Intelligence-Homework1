@@ -1,3 +1,4 @@
+package org.example;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -383,7 +384,7 @@ public class Main {
             System.out.println("DFS(Limited) search algorithm is started");
             queue.add(initialStates.get(i));
             int[][] currentState = queue.removeFirst();
-            DFSLimited(currentState, 20);
+            DFSLimited(currentState, 10);
             while (!queue.isEmpty()) {
                 numberOfStep++;
                 currentState = queue.removeFirst();
