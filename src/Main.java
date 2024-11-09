@@ -383,7 +383,7 @@ public class Main {
             System.out.println("DFS(Limited) search algorithm is started");
             queue.add(initialStates.get(i));
             int[][] currentState = queue.removeFirst();
-            DFSLimited(currentState, 10);
+            DFSLimited(currentState, 20);
             while (!queue.isEmpty()) {
                 numberOfStep++;
                 currentState = queue.removeFirst();
